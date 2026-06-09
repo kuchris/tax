@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>申告書 Desk</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="side-panel" aria-label="申告書 preparation progress">
+        <div class="brand-block">
+          <div class="brand-mark" aria-hidden="true">税</div>
+          <div>
+            <p class="eyebrow" data-i18n="app.eyebrow">Local draft tool</p>
+            <h1>申告書 Desk</h1>
+          </div>
+        </div>
+
+        <div class="readiness-card">
+          <div class="readiness-ring" id="readinessRing">
+            <span id="readinessScore">0%</span>
+          </div>
+          <div>
+            <p class="label" data-i18n="readiness.label">Draft readiness</p>
+            <p id="readinessText">Start with the intake.</p>
+          </div>
+        </div>
+
+        <nav class="step-list" aria-label="Steps">
+          <button class="step-button is-active" data-step="profile" type="button">
+            <span>01</span>
+            <strong data-step-label="profile">Profile</strong>
+          </button>
+          <button class="step-button" data-step="income" type="button">
+            <span>02</span>
+            <strong data-step-label="income">Income</strong>
+          </button>
+          <button class="step-button" data-step="deductions" type="button">
+            <span>03</span>
+            <strong data-step-label="deductions">Deductions</strong>
+          </button>
+          <button class="step-button" data-step="taxes" type="button">
+            <span>04</span>
+            <strong data-step-label="taxes">Taxes</strong>
+          </button>
+          <button class="step-button" data-step="documents" type="button">
+            <span>05</span>
+            <strong data-step-label="documents">Checklist</strong>
+          </button>
+          <button class="step-button" data-step="review" type="button">
+            <span>06</span>
+            <strong data-step-label="review">Review</strong>
+          </button>
+          <button class="step-button" data-step="scenario" type="button">
+            <span>07</span>
+            <strong data-step-label="scenario">Scenario</strong>
+          </button>
+        </nav>
+      </aside>
+
+      <section class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow" data-i18n="topbar.eyebrow">Guided interview</p>
+            <h2 id="stepTitle">Profile</h2>
+          </div>
+          <div class="topbar-actions">
+            <label class="language-control">
+              <span data-i18n="language.label">Language</span>
+              <select id="languageSelect" aria-label="Language">
+                <option value="en">English</option>
+                <option value="zh-TW">繁體中文</option>
+                <option value="ja">日本語</option>
+              </select>
+            </label>
+            <button class="icon-button" id="resetButton" type="button" title="Reset draft" aria-label="Reset draft" data-i18n-title="action.reset" data-i18n-aria-label="action.reset">R</button>
+            <button class="icon-button" id="exportButton" type="button" title="Export JSON" aria-label="Export JSON" data-i18n-title="action.export" data-i18n-aria-label="action.export">E</button>
+            <button class="icon-button" id="printButton" type="button" title="Print draft" aria-label="Print draft" data-i18n-title="action.print" data-i18n-aria-label="action.print">P</button>
+          </div>
+        </header>
+
+        <div class="work-grid">
+          <section class="entry-panel" id="stepContent" aria-live="polite"></section>
+
+          <aside class="draft-panel" aria-label="Draft summary">
+            <div class="paper-preview">
+              <div class="paper-head">
+                <p data-i18n="preview.title">Draft return package</p>
+                <strong id="previewYear">Tax year not set</strong>
+              </div>
+              <div class="paper-lines">
+                <div><span>申告タイプ</span><b id="previewType">未選択</b></div>
+                <div><span data-i18n="preview.income">Income sections</span><b id="previewIncome">0</b></div>
+                <div><span data-i18n="preview.deductions">Deduction sections</span><b id="previewDeduction">0</b></div>
+                <div><span data-i18n="preview.taxes">Tax areas</span><b id="previewTaxes">0</b></div>
+                <div><span data-i18n="preview.docs">Documents ready</span><b id="previewDocs">0 / 0</b></div>
+              </div>
+              <div class="paper-note">
+                <p id="previewNote">This is a preparation draft, not a filed return.</p>
+              </div>
+            </div>
+
+            <div class="issue-box">
+              <div class="section-heading">
+                <h3 data-i18n="issues.title">Open items</h3>
+                <span id="issueCount">0</span>
+              </div>
+              <ul id="issueList"></ul>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <template id="profileTemplate">
+      <div class="panel-copy">
+        <p class="kicker" data-i18n="profile.kicker">Start here</p>
+        <h3 data-i18n="profile.title">You do not need to know the form yet.</h3>
+        <p data-i18n="profile.copy">Answer normal questions first. The system turns them into a document checklist and a draft package.</p>
+      </div>
+
+      <form class="field-grid" data-form="profile">
+        <label>
+          <span data-i18n="profile.taxYear">Tax year</span>
+          <input name="taxYear" inputmode="numeric" placeholder="2025" />
+        </label>
+        <label>
+          <span data-i18n="profile.country">Country / system</span>
+          <select name="jurisdiction">
+            <option value="" data-i18n="option.choose">Choose one</option>
+            <option value="jp">Japan / 確定申告</option>
+            <option value="us">United States</option>
+            <option value="hk">Hong Kong</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+        <label>
+          <span data-i18n="profile.taxpayerType">Taxpayer type</span>
+          <select name="taxpayerType">
+            <option value="" data-i18n="option.choose">Choose one</option>
+            <option value="individual" data-i18n="option.individual">Individual</option>
+            <option value="sole-proprietor" data-i18n="option.sole">Sole proprietor</option>
+            <option value="company" data-i18n="option.company">Company</option>
+          </select>
+        </label>
+        <label>
+          <span data-i18n="profile.goal">Main goal</span>
+          <select name="goal">
+            <option value="" data-i18n="option.choose">Choose one</option>
+            <option value="learn" data-i18n="option.learn">Understand what I need</option>
+            <option value="draft" data-i18n="option.draft">Prepare a draft return</option>
+            <option value="estimate" data-i18n="option.estimate">Estimate tax only</option>
+          </select>
+        </label>
+      </form>
+    </template>
+
+    <template id="incomeTemplate">
+      <div class="panel-copy">
+        <p class="kicker" data-i18n="income.kicker">Income</p>
+        <h3 data-i18n="income.title">Tell the system where money came from.</h3>
+        <p>For salary, copy the visible boxes from your 源泉徴収票. Other income types are kept as review items.</p>
+      </div>
+      <div class="choice-grid" data-group="income"></div>
+      <div class="amount-box" id="incomeAmounts"></div>
+    </template>
+
+    <template id="deductionsTemplate">
+      <div class="panel-copy">
+        <p class="kicker" data-i18n="deductions.kicker">Deductions</p>
+        <h3 data-i18n="deductions.title">Pick anything that might reduce taxable income.</h3>
+        <p data-i18n="deductions.copy">Furusato and simple income deductions are estimated for Japan 2025. Complex credits stay marked for review.</p>
+      </div>
+      <div class="choice-grid" data-group="deductions"></div>
+      <div class="amount-box" id="deductionAmounts"></div>
+    </template>
+
+    <template id="documentsTemplate">
+      <div class="panel-copy">
+        <p class="kicker" data-i18n="documents.kicker">Checklist</p>
+        <h3 data-i18n="documents.title">Gather documents before worrying about the form.</h3>
+        <p data-i18n="documents.copy">Mark items as ready, not applicable, or unresolved. The review page will use this.</p>
+      </div>
+      <div class="doc-list" id="documentList"></div>
+    </template>
+
+    <template id="taxesTemplate">
+      <div class="panel-copy">
+        <p class="kicker" data-i18n="taxes.kicker">Tax coverage</p>
+        <h3 data-i18n="taxes.title">Choose every tax or insurance area that might apply.</h3>
+        <p data-i18n="taxes.copy">Some areas can be estimated here. Others need a notice, payslip, municipality number, or official filing result.</p>
+      </div>
+      <div class="choice-grid tax-grid" data-group="taxModules"></div>
+      <div class="amount-box" id="taxModuleFields"></div>
+    </template>
+
+    <template id="reviewTemplate">
+      <div class="panel-copy">
+        <p class="kicker" data-i18n="review.kicker">Review</p>
+        <h3 data-i18n="review.title">Check the draft before export.</h3>
+        <p data-i18n="review.copy">This page shows what is complete, what is missing, and what still needs human judgment.</p>
+      </div>
+      <div class="review-grid">
+        <div class="review-card">
+          <span>給与所得</span>
+          <strong id="reviewSalaryIncome">0</strong>
+        </div>
+        <div class="review-card">
+          <span>所得控除合計</span>
+          <strong id="reviewDeductionTotal">0</strong>
+        </div>
+        <div class="review-card">
+          <span>課税所得</span>
+          <strong id="reviewTaxableIncome">0</strong>
+        </div>
+        <div class="review-card">
+          <span>所得税等 estimate</span>
+          <strong id="reviewIncomeTax">0</strong>
+        </div>
+        <div class="review-card">
+          <span>納付 / 還付 estimate</span>
+          <strong id="reviewSettlement">0</strong>
+        </div>
+        <div class="review-card">
+          <span>ふるさと納税 benefit</span>
+          <strong id="reviewFurusatoBenefit">0</strong>
+        </div>
+        <div class="review-card review-card-total">
+          <span>まだ払う estimate</span>
+          <strong id="reviewTotalToPay">0</strong>
+        </div>
+        <div class="review-card review-card-total">
+          <span>月あたり estimate</span>
+          <strong id="reviewPerMonth">0</strong>
+        </div>
+        <div class="review-card">
+          <span>給与から控除済み</span>
+          <strong id="reviewAlreadyDeducted">0</strong>
+        </div>
+      </div>
+      <div class="explain-box" id="reviewExplanation"></div>
+      <div class="tax-coverage-list" id="taxCoverageList"></div>
+      <div class="trace-list" id="traceList"></div>
+      <div class="final-list" id="finalList"></div>
+    </template>
+
+    <template id="scenarioTemplate">
+      <div class="panel-copy">
+        <p class="kicker" data-i18n="scenario.kicker">Scenario</p>
+        <h3 data-i18n="scenario.title">Salary change under the same tax settings.</h3>
+        <p data-i18n="scenario.copy">Only salary changes. Place, selected taxes, deductions, furusato settings, and insurance assumptions stay the same.</p>
+      </div>
+      <div class="detail-panel">
+        <div class="section-heading">
+          <h3 data-i18n="scenario.range">Salary range</h3>
+          <span>07</span>
+        </div>
+        <div class="field-grid">
+          <label>
+            <span data-i18n="scenario.min">Minimum salary</span>
+            <input name="minSalary" data-scenario-field inputmode="decimal" placeholder="0" />
+          </label>
+          <label>
+            <span data-i18n="scenario.max">Maximum salary</span>
+            <input name="maxSalary" data-scenario-field inputmode="decimal" placeholder="2,000,000" />
+          </label>
+          <label>
+            <span data-i18n="scenario.step">Step</span>
+            <input name="salaryStep" data-scenario-field inputmode="decimal" placeholder="250,000" />
+          </label>
+        </div>
+      </div>
+      <div class="scenario-summary" id="scenarioSummary"></div>
+      <div class="scenario-charts">
+        <div class="chart-panel">
+          <div class="section-heading">
+            <h3 data-i18n="scenario.curve">Usable money curve</h3>
+            <span>線</span>
+          </div>
+          <div id="scenarioLineChart"></div>
+        </div>
+        <div class="chart-panel">
+          <div class="section-heading">
+            <h3 data-i18n="scenario.split">Salary split</h3>
+            <span>棒</span>
+          </div>
+          <div id="scenarioBarChart"></div>
+        </div>
+      </div>
+      <div class="scenario-table-wrap">
+        <table class="scenario-table">
+          <thead>
+            <tr>
+              <th data-i18n="scenario.table.salary">Salary</th>
+              <th data-i18n="scenario.table.usable">Usable</th>
+              <th data-i18n="scenario.table.tax">Tax/ins.</th>
+              <th data-i18n="scenario.table.rate">Keep rate</th>
+              <th data-i18n="scenario.table.month">Pay/mo.</th>
+            </tr>
+          </thead>
+          <tbody id="scenarioTableBody"></tbody>
+        </table>
+      </div>
+    </template>
+
+    <script src="./tax-math.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "tax-desk",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "test": "node tests/tax-math.test.js",
+    "check": "node --check app.js && node --check tax-math.js && node --check server.js"
+  }
+}
